@@ -22,7 +22,8 @@ import { Privacy } from "@/pages/Privacy";
 import { AdminPanel } from "@/pages/AdminPanel";
 import { Promotions } from "@/pages/Promotions";
 import { NewProducts } from "@/pages/NewProducts";
-import NotFound from "./pages/NotFound";
+import { ProductDetail } from '@/pages/ProductDetail';
+import { NotFound } from '@/pages/NotFound';
 
 const queryClient = new QueryClient();
 
@@ -40,20 +41,21 @@ const App = () => (
                 <Route path="/" element={<Landing />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/registro" element={<Register />} />
-                <Route path="/loja" element={<Store />} />
-                <Route path="/categoria/:categoryId" element={<Category />} />
-                <Route path="/carrinho" element={<Cart />} />
-                <Route path="/pagamento" element={<Payment />} />
-                <Route path="/pagamento-sucesso" element={<PaymentSuccess />} />
-                <Route path="/meus-produtos" element={<MyProducts />} />
-                <Route path="/suporte" element={<Support />} />
-                <Route path="/promocoes" element={<Promotions />} />
-                <Route path="/novidades" element={<NewProducts />} />
-                <Route path="/termos" element={<Terms />} />
-                <Route path="/privacidade" element={<Privacy />} />
-                <Route path="/painel" element={<AdminPanel />} />
-                {/* Add more routes as needed */}
-                <Route path="*" element={<NotFound />} />
+            <Route path="/loja" element={<Store />} />
+            <Route path="/categoria/:categoryId" element={<Category />} />
+            <Route path="/produto/:id" element={<ProductDetail />} />
+            <Route path="/carrinho" element={<Cart />} />
+            <Route path="/pagamento" element={<Payment />} />
+            <Route path="/pagamento-sucesso" element={<PaymentSuccess />} />
+            <Route path="/meus-produtos" element={<MyProducts />} />
+            <Route path="/suporte" element={<Support />} />
+            <Route path="/promocoes" element={<Promotions />} />
+            <Route path="/novidades" element={<NewProducts />} />
+            <Route path="/termos" element={<Terms />} />
+            <Route path="/privacidade" element={<Privacy />} />
+            <Route path="/painel" element={<AdminPanel />} />
+            {/* Add more routes as needed */}
+            <Route path="*" element={<NotFound />} />
               </Routes>
               <CookieBanner />
             </div>
