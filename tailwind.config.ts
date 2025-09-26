@@ -57,6 +57,29 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        // Grok premium colors
+        grok: {
+          primary: "hsl(var(--grok-primary))",
+          secondary: "hsl(var(--grok-secondary))",
+          accent: "hsl(var(--grok-accent))",
+          success: "hsl(var(--grok-success))",
+          warning: "hsl(var(--grok-warning))",
+          error: "hsl(var(--grok-error))",
+        },
+      },
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+      },
+      boxShadow: {
+        'grok-sm': 'var(--shadow-sm)',
+        'grok-md': 'var(--shadow-md)',
+        'grok-lg': 'var(--shadow-lg)',
+        'grok-xl': 'var(--shadow-xl)',
+      },
+      transitionDuration: {
+        'fast': '150ms',
+        'normal': '250ms',
+        'slow': '350ms',
       },
       borderRadius: {
         lg: "var(--radius)",
