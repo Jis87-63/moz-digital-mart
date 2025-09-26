@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeProvider';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { NotificationBell } from './NotificationBell';
 import { 
   Menu, 
   ShoppingCart, 
@@ -17,7 +18,7 @@ import {
   Store,
   Home
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export const Header: React.FC = () => {
   const { currentUser, logout } = useAuth();
@@ -95,6 +96,11 @@ export const Header: React.FC = () => {
             <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             <span className="sr-only">Alternar tema</span>
           </Button>
+
+          {/* Notifications - Only for logged in users */}
+          <AnimatePresence>
+            {currentUser && <NotificationBell />}
+          </AnimatePresence>
 
           {/* Cart */}
           <Button

@@ -56,51 +56,7 @@ const categories = [
   }
 ];
 
-// Mock products data - TO BE REMOVED WHEN FIREBASE IS INTEGRATED
-const mockProducts = {
-  streaming: [
-    { id: 1, name: 'Netflix Premium 1 Mês', price: 450, discount: 10, image: '/api/placeholder/120/120' },
-    { id: 2, name: 'Spotify Premium 3 Meses', price: 850, discount: 0, image: '/api/placeholder/120/120' },
-    { id: 3, name: 'Disney+ Annual', price: 2500, discount: 15, image: '/api/placeholder/120/120' },
-    { id: 4, name: 'YouTube Premium', price: 650, discount: 0, image: '/api/placeholder/120/120' },
-    { id: 5, name: 'Amazon Prime Video', price: 750, discount: 20, image: '/api/placeholder/120/120' },
-  ],
-  ebooks: [
-    { id: 6, name: 'Kindle Unlimited 6 Meses', price: 1200, discount: 0, image: '/api/placeholder/120/120' },
-    { id: 7, name: 'Audible Premium', price: 950, discount: 5, image: '/api/placeholder/120/120' },
-    { id: 8, name: 'Scribd Ilimitado', price: 800, discount: 10, image: '/api/placeholder/120/120' },
-    { id: 9, name: 'Adobe Digital Editions', price: 1500, discount: 0, image: '/api/placeholder/120/120' },
-    { id: 10, name: 'Kobo Plus Premium', price: 1100, discount: 12, image: '/api/placeholder/120/120' },
-  ],
-  gaming: [
-    { id: 11, name: 'Xbox Game Pass Ultimate', price: 2200, discount: 8, image: '/api/placeholder/120/120' },
-    { id: 12, name: 'PlayStation Plus Extra', price: 1800, discount: 0, image: '/api/placeholder/120/120' },
-    { id: 13, name: 'Steam Wallet 50 USD', price: 3200, discount: 5, image: '/api/placeholder/120/120' },
-    { id: 14, name: 'Epic Games Store Credit', price: 2800, discount: 15, image: '/api/placeholder/120/120' },
-    { id: 15, name: 'Nintendo Switch Online', price: 900, discount: 0, image: '/api/placeholder/120/120' },
-  ],
-  jogos: [
-    { id: 16, name: 'FIFA 2024 Digital', price: 4500, discount: 20, image: '/api/placeholder/120/120' },
-    { id: 17, name: 'Call of Duty Premium', price: 5200, discount: 0, image: '/api/placeholder/120/120' },
-    { id: 18, name: 'Minecraft Java Edition', price: 1800, discount: 10, image: '/api/placeholder/120/120' },
-    { id: 19, name: 'Grand Theft Auto V', price: 3500, discount: 25, image: '/api/placeholder/120/120' },
-    { id: 20, name: 'Cyberpunk 2077', price: 2900, discount: 0, image: '/api/placeholder/120/120' },
-  ],
-  recargas: [
-    { id: 21, name: 'Recarga Vodacom 500 MZN', price: 500, discount: 0, image: '/api/placeholder/120/120' },
-    { id: 22, name: 'Recarga Movitel 300 MZN', price: 300, discount: 5, image: '/api/placeholder/120/120' },
-    { id: 23, name: 'Recarga TMcel 200 MZN', price: 200, discount: 0, image: '/api/placeholder/120/120' },
-    { id: 24, name: 'Bundle Internet 10GB', price: 650, discount: 8, image: '/api/placeholder/120/120' },
-    { id: 25, name: 'Pacote Redes Sociais', price: 250, discount: 0, image: '/api/placeholder/120/120' },
-  ],
-  paypal: [
-    { id: 26, name: 'Conta PayPal Verificada', price: 2500, discount: 10, image: '/api/placeholder/120/120' },
-    { id: 27, name: 'Saldo PayPal 50 USD', price: 3200, discount: 0, image: '/api/placeholder/120/120' },
-    { id: 28, name: 'PayPal Business Account', price: 4500, discount: 15, image: '/api/placeholder/120/120' },
-    { id: 29, name: 'Cartão Virtual PayPal', price: 1800, discount: 0, image: '/api/placeholder/120/120' },
-    { id: 30, name: 'Configuração PayPal', price: 1200, discount: 20, image: '/api/placeholder/120/120' },
-  ]
-};
+// Products will be loaded from Firebase - no mock data
 
 export const Store: React.FC = () => {
   const navigate = useNavigate();

@@ -89,33 +89,43 @@ export const Payment: React.FC = () => {
     setLoading(true);
 
     try {
-      // Here would be the actual Gibrapay API integration
-      // For now, simulate payment processing
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      // Import Gibrapay service
+      const { gibrapayService } = await import('@/lib/gibrapay');
+      
+      // Clean phone number for API
+      const cleanPhone = phoneNumber.replace(/\D/g, '').slice(-9);
+      
+      // Process payment with Gibrapay
+      const result = await gibrapayService.transfer(cleanPhone, total);
+      
+      if (result.status === 'success' && result.data.status === 'complete') {
+        // Clear cart
+        localStorage.removeItem('mozstore-cart');
 
-      // Clear cart
-      localStorage.removeItem('mozstore-cart');
+        // Navigate to success page
+        navigate('/pagamento-sucesso', {
+          state: {
+            items,
+            total,
+            phoneNumber,
+            transactionId: result.data.id
+          }
+        });
 
-      // Navigate to success page
-      navigate('/pagamento-sucesso', {
-        state: {
-          items,
-          total,
-          phoneNumber,
-          transactionId: `TXN${Date.now()}`
-        }
-      });
+        toast({
+          title: "Pagamento processado!",
+          description: "Você será redirecionado em instantes...",
+        });
+      } else {
+        throw new Error(result.message || 'Pagamento falhou');
+      }
 
-      toast({
-        title: "Pagamento processado!",
-        description: "Você será redirecionado em instantes...",
-      });
-
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Payment error:', error);
       toast({
         variant: "destructive",
         title: "Erro no pagamento",
-        description: "Tente novamente em alguns minutos.",
+        description: error.message || "Tente novamente em alguns minutos.",
       });
     } finally {
       setLoading(false);
