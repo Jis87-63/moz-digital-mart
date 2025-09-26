@@ -14,34 +14,66 @@ import {
   Users,
   Star
 } from 'lucide-react';
+import { bannerService } from '@/lib/products';
+import { Banner } from '@/types/product';
 
-const banners = [
+// Default banners if none are found in Firebase
+const defaultBanners = [
   {
-    id: 1,
+    id: 'default-1',
     title: "Produtos Digitais Premium",
     subtitle: "A melhor experiência em Moçambique",
     image: "/api/placeholder/800/300",
-    color: "from-blue-600 to-blue-800"
+    color: "from-blue-600 to-blue-800",
+    isActive: true,
+    order: 1,
+    createdAt: new Date()
   },
   {
-    id: 2,
+    id: 'default-2',
     title: "Pagamentos Seguros",
-    subtitle: "Gibrapay - Transferência instantânea",
+    subtitle: "Mpesa - Transferência instantânea",
     image: "/api/placeholder/800/300",
-    color: "from-green-600 to-green-800"
+    color: "from-green-600 to-green-800",
+    isActive: true,
+    order: 2,
+    createdAt: new Date()
   },
   {
-    id: 3,
+    id: 'default-3',
     title: "Suporte 24/7",
     subtitle: "Estamos sempre aqui para ajudar",
     image: "/api/placeholder/800/300",
-    color: "from-purple-600 to-purple-800"
+    color: "from-purple-600 to-purple-800",
+    isActive: true,
+    order: 3,
+    createdAt: new Date()
   }
 ];
 
 export const Landing: React.FC = () => {
   const navigate = useNavigate();
   const [currentBanner, setCurrentBanner] = useState(0);
+  const [banners, setBanners] = useState<Banner[]>(defaultBanners);
+  const [bannersLoading, setBannersLoading] = useState(true);
+
+  useEffect(() => {
+    const loadBanners = async () => {
+      try {
+        const activeBanners = await bannerService.getActiveBanners();
+        if (activeBanners.length > 0) {
+          setBanners(activeBanners);
+        }
+      } catch (error) {
+        console.error('Error loading banners:', error);
+        // Keep default banners on error
+      } finally {
+        setBannersLoading(false);
+      }
+    };
+
+    loadBanners();
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -190,7 +222,7 @@ export const Landing: React.FC = () => {
               {
                 icon: Shield,
                 title: "Pagamentos Seguros",
-                description: "Integração com Gibrapay para transferências seguras e instantâneas",
+                description: "Integração com Mpesa para transferências seguras e instantâneas",
                 color: "text-green-600"
               },
               {

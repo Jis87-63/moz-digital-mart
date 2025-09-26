@@ -14,6 +14,8 @@ import {
   CreditCard,
   Zap
 } from 'lucide-react';
+import { productService } from '@/lib/products';
+import { Product } from '@/types/product';
 
 const categories = [
   {
@@ -54,7 +56,7 @@ const categories = [
   }
 ];
 
-// Mock products data
+// Mock products data - TO BE REMOVED WHEN FIREBASE IS INTEGRATED
 const mockProducts = {
   streaming: [
     { id: 1, name: 'Netflix Premium 1 Mês', price: 450, discount: 10, image: '/api/placeholder/120/120' },
@@ -102,9 +104,57 @@ const mockProducts = {
 
 export const Store: React.FC = () => {
   const navigate = useNavigate();
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [products, setProducts] = useState<Record<string, Product[]>>({});
+  const [loading, setLoading] = useState(true);
 
-  const ProductCard: React.FC<{ product: any }> = ({ product }) => (
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const allProducts = await productService.getAllProducts();
+        
+        // Group products by category
+        const productsByCategory: Record<string, Product[]> = {};
+        categories.forEach(category => {
+          productsByCategory[category.id] = allProducts
+            .filter(product => product.category === category.id)
+            .slice(0, 5); // Show only first 5 products
+        });
+        
+        setProducts(productsByCategory);
+      } catch (error) {
+        console.error('Error loading products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProducts();
+  }, []);
+
+  const addToCart = (product: Product) => {
+    const existingCart = JSON.parse(localStorage.getItem('mozstore-cart') || '[]');
+    const existingItem = existingCart.find((item: any) => item.id === product.id);
+
+    if (existingItem) {
+      existingItem.quantity += 1;
+    } else {
+      existingCart.push({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: 1,
+        image: product.image,
+        category: product.category
+      });
+    }
+
+    localStorage.setItem('mozstore-cart', JSON.stringify(existingCart));
+    
+    // Show success message or update cart count
+    alert('Produto adicionado ao carrinho!');
+  };
+
+  const ProductCard: React.FC<{ product: Product }> = ({ product }) => (
     <motion.div
       whileHover={{ y: -4 }}
       whileTap={{ scale: 0.98 }}
@@ -158,7 +208,15 @@ export const Store: React.FC = () => {
                 )}
               </div>
               
-              <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+              <Button 
+                size="sm" 
+                variant="ghost" 
+                className="h-8 w-8 p-0"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  addToCart(product);
+                }}
+              >
                 <ShoppingCart className="h-3 w-3" />
               </Button>
             </div>
@@ -169,8 +227,33 @@ export const Store: React.FC = () => {
   );
 
   const CategorySection: React.FC<{ category: any }> = ({ category }) => {
-    const products = mockProducts[category.id as keyof typeof mockProducts] || [];
-    const displayProducts = products.slice(0, 5);
+    const categoryProducts = products[category.id] || [];
+    
+    if (loading) {
+      return (
+        <div className="mb-8">
+          <div className="flex items-center space-x-3 mb-4">
+            <div className={`p-2 rounded-lg bg-gradient-to-r ${category.color}`}>
+              <category.icon className="h-5 w-5 text-white" />
+            </div>
+            <h2 className="text-xl font-bold">{category.title}</h2>
+          </div>
+          <div className="flex space-x-4">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="min-w-[160px] max-w-[160px]">
+                <Card className="product-card">
+                  <CardContent className="p-3">
+                    <div className="w-full h-24 bg-secondary/50 rounded-lg animate-pulse mb-3" />
+                    <div className="h-4 bg-secondary/50 rounded animate-pulse mb-2" />
+                    <div className="h-3 bg-secondary/50 rounded animate-pulse" />
+                  </CardContent>
+                </Card>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
     
     return (
       <motion.div
@@ -197,11 +280,17 @@ export const Store: React.FC = () => {
         </div>
         
         <div className="category-scroll">
-          {displayProducts.map((product) => (
-            <div key={product.id} className="min-w-[160px] max-w-[160px]">
-              <ProductCard product={product} />
+          {categoryProducts.length > 0 ? (
+            categoryProducts.map((product) => (
+              <div key={product.id} className="min-w-[160px] max-w-[160px]">
+                <ProductCard product={product} />
+              </div>
+            ))
+          ) : (
+            <div className="text-center py-8 text-muted-foreground w-full">
+              <p>Nenhum produto disponível nesta categoria.</p>
             </div>
-          ))}
+          )}
         </div>
       </motion.div>
     );

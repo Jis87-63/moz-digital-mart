@@ -23,8 +23,8 @@ import { toast } from '@/hooks/use-toast';
 
 // Admin credentials (In production, this should be in a secure backend)
 const ADMIN_CREDENTIALS = {
-  email: 'admin@mozstoredigital.com',
-  password: 'MozStoreAdmin2025!'
+  email: 'carlitosmarques08@gmail.com',
+  password: '1234567'
 };
 
 export const AdminPanel: React.FC = () => {

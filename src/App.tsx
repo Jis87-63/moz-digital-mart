@@ -12,6 +12,11 @@ import { Login } from "@/pages/Login";
 import { Register } from "@/pages/Register";
 import { Store } from "@/pages/Store";
 import { Category } from "@/pages/Category";
+import { Cart } from "@/pages/Cart";
+import { Payment } from "@/pages/Payment";
+import { PaymentSuccess } from "@/pages/PaymentSuccess";
+import { MyProducts } from "@/pages/MyProducts";
+import { Support } from "@/pages/Support";
 import { Terms } from "@/pages/Terms";
 import { Privacy } from "@/pages/Privacy";
 import { AdminPanel } from "@/pages/AdminPanel";
@@ -35,6 +40,11 @@ const App = () => (
                 <Route path="/registro" element={<Register />} />
                 <Route path="/loja" element={<Store />} />
                 <Route path="/categoria/:categoryId" element={<Category />} />
+                <Route path="/carrinho" element={<Cart />} />
+                <Route path="/pagamento" element={<Payment />} />
+                <Route path="/pagamento-sucesso" element={<PaymentSuccess />} />
+                <Route path="/meus-produtos" element={<MyProducts />} />
+                <Route path="/suporte" element={<Support />} />
                 <Route path="/termos" element={<Terms />} />
                 <Route path="/privacidade" element={<Privacy />} />
                 <Route path="/painel" element={<AdminPanel />} />
