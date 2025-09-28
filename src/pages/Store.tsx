@@ -56,7 +56,8 @@ const categories = [
   }
 ];
 
-// Products will be loaded from Firebase - no mock data
+// Products will be loaded from Firebase only - store starts empty
+// Admin will add products via /painel using 'prdt' key structure
 
 export const Store: React.FC = () => {
   const navigate = useNavigate();
@@ -244,7 +245,8 @@ export const Store: React.FC = () => {
             ))
           ) : (
             <div className="text-center py-8 text-muted-foreground w-full">
-              <p>Nenhum produto disponível nesta categoria.</p>
+              <p>Aguardando produtos serem adicionados pelo administrador.</p>
+              <p className="text-sm mt-2">Os produtos aparecerão aqui após serem cadastrados no painel.</p>
             </div>
           )}
         </div>

@@ -15,6 +15,8 @@ import {
   Zap,
   Filter
 } from 'lucide-react';
+import { productService } from '@/lib/products';
+import { Product } from '@/types/product';
 
 const categories = {
   streaming: { title: 'Streaming', icon: Tv, color: 'from-red-500 to-red-600' },
@@ -25,76 +27,60 @@ const categories = {
   paypal: { title: 'PayPal', icon: CreditCard, color: 'from-indigo-500 to-indigo-600' }
 };
 
-const mockProducts = {
-  streaming: [
-    { id: 1, name: 'Netflix Premium 1 Mês', price: 450, discount: 10, image: '/api/placeholder/120/120' },
-    { id: 2, name: 'Spotify Premium 3 Meses', price: 850, discount: 0, image: '/api/placeholder/120/120' },
-    { id: 3, name: 'Disney+ Annual', price: 2500, discount: 15, image: '/api/placeholder/120/120' },
-    { id: 4, name: 'YouTube Premium', price: 650, discount: 0, image: '/api/placeholder/120/120' },
-    { id: 5, name: 'Amazon Prime Video', price: 750, discount: 20, image: '/api/placeholder/120/120' },
-    { id: 31, name: 'HBO Max Premium', price: 920, discount: 5, image: '/api/placeholder/120/120' },
-    { id: 32, name: 'Apple TV+ 6 Meses', price: 1200, discount: 0, image: '/api/placeholder/120/120' },
-    { id: 33, name: 'Paramount+ Premium', price: 680, discount: 12, image: '/api/placeholder/120/120' },
-  ],
-  ebooks: [
-    { id: 6, name: 'Kindle Unlimited 6 Meses', price: 1200, discount: 0, image: '/api/placeholder/120/120' },
-    { id: 7, name: 'Audible Premium', price: 950, discount: 5, image: '/api/placeholder/120/120' },
-    { id: 8, name: 'Scribd Ilimitado', price: 800, discount: 10, image: '/api/placeholder/120/120' },
-    { id: 9, name: 'Adobe Digital Editions', price: 1500, discount: 0, image: '/api/placeholder/120/120' },
-    { id: 10, name: 'Kobo Plus Premium', price: 1100, discount: 12, image: '/api/placeholder/120/120' },
-    { id: 34, name: 'Biblioteca Digital Premium', price: 750, discount: 8, image: '/api/placeholder/120/120' },
-    { id: 35, name: 'E-book Collection 500+', price: 2200, discount: 25, image: '/api/placeholder/120/120' },
-  ],
-  gaming: [
-    { id: 11, name: 'Xbox Game Pass Ultimate', price: 2200, discount: 8, image: '/api/placeholder/120/120' },
-    { id: 12, name: 'PlayStation Plus Extra', price: 1800, discount: 0, image: '/api/placeholder/120/120' },
-    { id: 13, name: 'Steam Wallet 50 USD', price: 3200, discount: 5, image: '/api/placeholder/120/120' },
-    { id: 14, name: 'Epic Games Store Credit', price: 2800, discount: 15, image: '/api/placeholder/120/120' },
-    { id: 15, name: 'Nintendo Switch Online', price: 900, discount: 0, image: '/api/placeholder/120/120' },
-    { id: 36, name: 'Origin Access Premier', price: 1650, discount: 10, image: '/api/placeholder/120/120' },
-    { id: 37, name: 'Ubisoft+ Premium', price: 1950, discount: 0, image: '/api/placeholder/120/120' },
-  ],
-  jogos: [
-    { id: 16, name: 'FIFA 2024 Digital', price: 4500, discount: 20, image: '/api/placeholder/120/120' },
-    { id: 17, name: 'Call of Duty Premium', price: 5200, discount: 0, image: '/api/placeholder/120/120' },
-    { id: 18, name: 'Minecraft Java Edition', price: 1800, discount: 10, image: '/api/placeholder/120/120' },
-    { id: 19, name: 'Grand Theft Auto V', price: 3500, discount: 25, image: '/api/placeholder/120/120' },
-    { id: 20, name: 'Cyberpunk 2077', price: 2900, discount: 0, image: '/api/placeholder/120/120' },
-    { id: 38, name: 'Assassins Creed Valhalla', price: 3800, discount: 15, image: '/api/placeholder/120/120' },
-    { id: 39, name: 'Red Dead Redemption 2', price: 4200, discount: 30, image: '/api/placeholder/120/120' },
-  ],
-  recargas: [
-    { id: 21, name: 'Recarga Vodacom 500 MZN', price: 500, discount: 0, image: '/api/placeholder/120/120' },
-    { id: 22, name: 'Recarga Movitel 300 MZN', price: 300, discount: 5, image: '/api/placeholder/120/120' },
-    { id: 23, name: 'Recarga TMcel 200 MZN', price: 200, discount: 0, image: '/api/placeholder/120/120' },
-    { id: 24, name: 'Bundle Internet 10GB', price: 650, discount: 8, image: '/api/placeholder/120/120' },
-    { id: 25, name: 'Pacote Redes Sociais', price: 250, discount: 0, image: '/api/placeholder/120/120' },
-    { id: 40, name: 'Recarga Vodacom 1000 MZN', price: 1000, discount: 3, image: '/api/placeholder/120/120' },
-    { id: 41, name: 'Bundle Internet 50GB', price: 2500, discount: 12, image: '/api/placeholder/120/120' },
-  ],
-  paypal: [
-    { id: 26, name: 'Conta PayPal Verificada', price: 2500, discount: 10, image: '/api/placeholder/120/120' },
-    { id: 27, name: 'Saldo PayPal 50 USD', price: 3200, discount: 0, image: '/api/placeholder/120/120' },
-    { id: 28, name: 'PayPal Business Account', price: 4500, discount: 15, image: '/api/placeholder/120/120' },
-    { id: 29, name: 'Cartão Virtual PayPal', price: 1800, discount: 0, image: '/api/placeholder/120/120' },
-    { id: 30, name: 'Configuração PayPal', price: 1200, discount: 20, image: '/api/placeholder/120/120' },
-    { id: 42, name: 'Saldo PayPal 100 USD', price: 6200, discount: 5, image: '/api/placeholder/120/120' },
-  ]
-};
+// Products will be loaded from Firebase only - admin will add products via /painel
 
 export const Category: React.FC = () => {
   const { categoryId } = useParams<{ categoryId: string }>();
   const navigate = useNavigate();
   const [sortBy, setSortBy] = useState<'price' | 'name' | 'discount'>('name');
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      if (!categoryId) return;
+      
+      try {
+        const categoryProducts = await productService.getProductsByCategory(categoryId);
+        setProducts(categoryProducts);
+      } catch (error) {
+        console.error('Error loading category products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProducts();
+  }, [categoryId]);
 
   const category = categoryId ? categories[categoryId as keyof typeof categories] : null;
-  const products = categoryId ? mockProducts[categoryId as keyof typeof mockProducts] || [] : [];
 
   useEffect(() => {
     if (!category) {
       navigate('/loja');
     }
   }, [category, navigate]);
+
+  const addToCart = (product: Product) => {
+    const existingCart = JSON.parse(localStorage.getItem('mozstore-cart') || '[]');
+    const existingItem = existingCart.find((item: any) => item.id === product.id);
+
+    if (existingItem) {
+      existingItem.quantity += 1;
+    } else {
+      existingCart.push({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: 1,
+        image: product.image,
+        category: product.category
+      });
+    }
+
+    localStorage.setItem('mozstore-cart', JSON.stringify(existingCart));
+    alert('Produto adicionado ao carrinho!');
+  };
 
   if (!category) {
     return null;
@@ -113,7 +99,7 @@ export const Category: React.FC = () => {
     }
   });
 
-  const ProductCard: React.FC<{ product: any }> = ({ product }) => (
+  const ProductCard: React.FC<{ product: Product }> = ({ product }) => (
     <motion.div
       whileHover={{ y: -4 }}
       whileTap={{ scale: 0.98 }}
@@ -168,7 +154,14 @@ export const Category: React.FC = () => {
                 )}
               </div>
               
-              <Button size="sm" className="grok-button-primary">
+              <Button 
+                size="sm" 
+                className="grok-button-primary"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  addToCart(product);
+                }}
+              >
                 <ShoppingCart className="h-4 w-4 mr-2" />
                 Comprar
               </Button>
@@ -204,45 +197,68 @@ export const Category: React.FC = () => {
             <div>
               <h1 className="text-3xl md:text-4xl font-bold">{category.title}</h1>
               <p className="text-muted-foreground">
-                {products.length} produto{products.length !== 1 ? 's' : ''} disponível{products.length !== 1 ? 'is' : ''}
+                {loading 
+                  ? 'Carregando produtos...'
+                  : `${products.length} produto${products.length !== 1 ? 's' : ''} ${products.length === 0 ? 'aguardando ser adicionado' : 'disponível'}${products.length !== 1 && products.length > 0 ? 'is' : ''}`
+                }
               </p>
             </div>
           </div>
 
           {/* Filters */}
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center space-x-2">
-              <Filter className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Ordenar por:</span>
+          {products.length > 0 && (
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center space-x-2">
+                <Filter className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">Ordenar por:</span>
+              </div>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="grok-input selectable px-3 py-2 text-sm"
+              >
+                <option value="name">Nome A-Z</option>
+                <option value="price">Menor Preço</option>
+                <option value="discount">Maior Desconto</option>
+              </select>
             </div>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as any)}
-              className="grok-input selectable px-3 py-2 text-sm"
-            >
-              <option value="name">Nome A-Z</option>
-              <option value="price">Menor Preço</option>
-              <option value="discount">Maior Desconto</option>
-            </select>
-          </div>
+          )}
         </motion.div>
 
+        {/* Loading State */}
+        {loading && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+              <Card key={i} className="product-card">
+                <CardContent className="p-4">
+                  <div className="w-full h-32 bg-secondary/50 rounded-lg animate-pulse mb-4" />
+                  <div className="h-4 bg-secondary/50 rounded animate-pulse mb-2" />
+                  <div className="h-3 bg-secondary/50 rounded animate-pulse mb-2" />
+                  <div className="h-6 bg-secondary/50 rounded animate-pulse" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+
         {/* Products Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {sortedProducts.map((product, index) => (
-            <motion.div
-              key={product.id}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-            >
-              <ProductCard product={product} />
-            </motion.div>
-          ))}
-        </div>
+        {!loading && products.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {sortedProducts.map((product, index) => (
+              <motion.div
+                key={product.id}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <ProductCard product={product} />
+              </motion.div>
+            ))}
+          </div>
+        )}
 
         {/* Empty State */}
-        {products.length === 0 && (
+        {!loading && products.length === 0 && (
           <motion.div
             className="text-center py-16"
             initial={{ opacity: 0 }}
@@ -250,9 +266,9 @@ export const Category: React.FC = () => {
             transition={{ duration: 0.8 }}
           >
             <category.icon className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-xl font-semibold mb-2">Nenhum produto encontrado</h3>
+            <h3 className="text-xl font-semibold mb-2">Categoria em preparação</h3>
             <p className="text-muted-foreground mb-6">
-              Esta categoria ainda não possui produtos disponíveis.
+              Os produtos desta categoria serão adicionados em breve pelo administrador.
             </p>
             <Button onClick={() => navigate('/loja')} className="grok-button-primary">
               Explorar Outras Categorias

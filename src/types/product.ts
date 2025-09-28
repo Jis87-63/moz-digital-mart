@@ -1,5 +1,6 @@
 export interface Product {
   id: string;
+  prdt?: string; // Admin key structure as requested
   name: string;
   description: string;
   price: number;

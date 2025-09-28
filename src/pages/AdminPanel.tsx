@@ -200,7 +200,7 @@ export const AdminPanel: React.FC = () => {
     setLoading(false);
   };
   
-  // Product handlers
+  // Product handlers - using 'prdt' key structure as requested by admin
   const handleAddProduct = async (data: any, imageFile?: File) => {
     try {
       setLoading(true);
@@ -210,8 +210,10 @@ export const AdminPanel: React.FC = () => {
         imageUrl = await storageService.uploadImage(imageFile, 'products');
       }
       
+      // Add product with 'prdt' prefix structure
       await productService.addProduct({
         ...data,
+        prdt: `prdt_${Date.now()}`, // Unique product key as requested
         image: imageUrl,
         createdAt: new Date(),
         updatedAt: new Date()
@@ -219,7 +221,7 @@ export const AdminPanel: React.FC = () => {
       
       toast({
         title: "Sucesso",
-        description: "Produto adicionado com sucesso!"
+        description: "Produto adicionado com sucesso na loja!"
       });
       
       setIsProductDialogOpen(false);
@@ -250,12 +252,13 @@ export const AdminPanel: React.FC = () => {
       
       await productService.updateProduct(editingProduct.id, {
         ...data,
+        prdt: editingProduct.prdt || `prdt_${Date.now()}`, // Maintain or add prdt key
         image: imageUrl
       });
       
       toast({
         title: "Sucesso",
-        description: "Produto atualizado com sucesso!"
+        description: "Produto atualizado e disponível na loja!"
       });
       
       setIsProductDialogOpen(false);
@@ -281,7 +284,7 @@ export const AdminPanel: React.FC = () => {
       await productService.deleteProduct(id);
       toast({
         title: "Sucesso",
-        description: "Produto deletado com sucesso!"
+        description: "Produto removido da loja!"
       });
       loadData();
     } catch (error) {

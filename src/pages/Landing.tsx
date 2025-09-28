@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { bannerService } from '@/lib/products';
 import { Banner } from '@/types/product';
+import { useAuth } from '@/contexts/AuthContext';
 
 // Default banners if none are found in Firebase
 const defaultBanners = [
@@ -53,6 +54,7 @@ const defaultBanners = [
 
 export const Landing: React.FC = () => {
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
   const [currentBanner, setCurrentBanner] = useState(0);
   const [banners, setBanners] = useState<Banner[]>(defaultBanners);
   const [bannersLoading, setBannersLoading] = useState(true);
@@ -123,20 +125,24 @@ export const Landing: React.FC = () => {
                 Explorar Loja
                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Button>
-              <Button
-                onClick={() => navigate('/login')}
-                variant="outline"
-                className="grok-button-secondary text-lg px-8 py-6"
-              >
-                Entrar
-              </Button>
-              <Button
-                onClick={() => navigate('/registro')}
-                variant="outline"
-                className="grok-button-secondary text-lg px-8 py-6"
-              >
-                Registrar
-              </Button>
+              {!currentUser && (
+                <>
+                  <Button
+                    onClick={() => navigate('/login')}
+                    variant="outline"
+                    className="grok-button-secondary text-lg px-8 py-6"
+                  >
+                    Entrar
+                  </Button>
+                  <Button
+                    onClick={() => navigate('/registro')}
+                    variant="outline"
+                    className="grok-button-secondary text-lg px-8 py-6"
+                  >
+                    Registrar
+                  </Button>
+                </>
+              )}
             </motion.div>
           </div>
 
