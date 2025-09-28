@@ -23,7 +23,7 @@ import { AdminPanel } from "@/pages/AdminPanel";
 import { Promotions } from "@/pages/Promotions";
 import { NewProducts } from "@/pages/NewProducts";
 import { ProductDetail } from '@/pages/ProductDetail';
-import { NotFound } from '@/pages/NotFound';
+import NotFound from '@/pages/NotFound';
 
 const queryClient = new QueryClient();
 
