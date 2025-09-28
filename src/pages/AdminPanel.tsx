@@ -93,10 +93,11 @@ export const AdminPanel: React.FC = () => {
   const [isBannerDialogOpen, setIsBannerDialogOpen] = useState(false);
   const [isNotificationDialogOpen, setIsNotificationDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [editingBanner, setBanner] = useState<Banner | null>(null);
+  const [editingBanner, setEditingBanner] = useState<Banner | null>(null);
   
-  // Form instances  
+  // Form instances with proper validation
   const productForm = useForm({
+    resolver: zodResolver(productSchema),
     defaultValues: {
       name: '',
       description: '',
@@ -111,6 +112,7 @@ export const AdminPanel: React.FC = () => {
   });
   
   const bannerForm = useForm({
+    resolver: zodResolver(bannerSchema),
     defaultValues: {
       title: '',
       subtitle: '',
@@ -121,10 +123,11 @@ export const AdminPanel: React.FC = () => {
   });
   
   const notificationForm = useForm({
+    resolver: zodResolver(notificationSchema),
     defaultValues: {
       title: '',
       message: '',
-      type: 'info',
+      type: 'info' as const,
       isActive: true
     }
   });
@@ -201,23 +204,31 @@ export const AdminPanel: React.FC = () => {
   };
   
   // Product handlers - using 'prdt' key structure as requested by admin
-  const handleAddProduct = async (data: any, imageFile?: File) => {
+  const handleAddProduct = async (data: any) => {
     try {
       setLoading(true);
+      console.log('Adding product with data:', data);
       
+      const imageFile = (document.getElementById('product-image') as HTMLInputElement)?.files?.[0];
       let imageUrl = '';
+      
       if (imageFile) {
+        console.log('Uploading image...');
         imageUrl = await storageService.uploadImage(imageFile, 'products');
+        console.log('Image uploaded:', imageUrl);
       }
       
       // Add product with 'prdt' prefix structure
-      await productService.addProduct({
+      const productData = {
         ...data,
         prdt: `prdt_${Date.now()}`, // Unique product key as requested
         image: imageUrl,
         createdAt: new Date(),
         updatedAt: new Date()
-      });
+      };
+      
+      console.log('Saving product to Firebase:', productData);
+      await productService.addProduct(productData);
       
       toast({
         title: "Sucesso",
@@ -226,35 +237,44 @@ export const AdminPanel: React.FC = () => {
       
       setIsProductDialogOpen(false);
       productForm.reset();
-      loadData();
+      await loadData();
     } catch (error) {
       console.error('Error adding product:', error);
       toast({
         variant: "destructive",
         title: "Erro",
-        description: "Erro ao adicionar produto."
+        description: `Erro ao adicionar produto: ${error instanceof Error ? error.message : 'Erro desconhecido'}`
       });
     } finally {
       setLoading(false);
     }
   };
   
-  const handleEditProduct = async (data: any, imageFile?: File) => {
+  const handleEditProduct = async (data: any) => {
     if (!editingProduct) return;
     
     try {
       setLoading(true);
+      console.log('Updating product with data:', data);
       
+      const imageFile = (document.getElementById('product-image') as HTMLInputElement)?.files?.[0];
       let imageUrl = editingProduct.image;
+      
       if (imageFile) {
+        console.log('Uploading new image...');
         imageUrl = await storageService.uploadImage(imageFile, 'products');
+        console.log('New image uploaded:', imageUrl);
       }
       
-      await productService.updateProduct(editingProduct.id, {
+      const updateData = {
         ...data,
         prdt: editingProduct.prdt || `prdt_${Date.now()}`, // Maintain or add prdt key
-        image: imageUrl
-      });
+        image: imageUrl,
+        updatedAt: new Date()
+      };
+      
+      console.log('Updating product in Firebase:', updateData);
+      await productService.updateProduct(editingProduct.id, updateData);
       
       toast({
         title: "Sucesso",
@@ -264,13 +284,13 @@ export const AdminPanel: React.FC = () => {
       setIsProductDialogOpen(false);
       setEditingProduct(null);
       productForm.reset();
-      loadData();
+      await loadData();
     } catch (error) {
       console.error('Error updating product:', error);
       toast({
         variant: "destructive",
         title: "Erro",
-        description: "Erro ao atualizar produto."
+        description: `Erro ao atualizar produto: ${error instanceof Error ? error.message : 'Erro desconhecido'}`
       });
     } finally {
       setLoading(false);
@@ -298,20 +318,28 @@ export const AdminPanel: React.FC = () => {
   };
   
   // Banner handlers
-  const handleAddBanner = async (data: any, imageFile?: File) => {
+  const handleAddBanner = async (data: any) => {
     try {
       setLoading(true);
+      console.log('Adding banner with data:', data);
       
+      const imageFile = (document.getElementById('banner-image') as HTMLInputElement)?.files?.[0];
       let imageUrl = '';
+      
       if (imageFile) {
+        console.log('Uploading banner image...');
         imageUrl = await storageService.uploadImage(imageFile, 'banners');
+        console.log('Banner image uploaded:', imageUrl);
       }
       
-      await bannerService.addBanner({
+      const bannerData = {
         ...data,
         image: imageUrl,
         createdAt: new Date()
-      });
+      };
+      
+      console.log('Saving banner to Firebase:', bannerData);
+      await bannerService.addBanner(bannerData);
       
       toast({
         title: "Sucesso",
@@ -320,13 +348,13 @@ export const AdminPanel: React.FC = () => {
       
       setIsBannerDialogOpen(false);
       bannerForm.reset();
-      loadData();
+      await loadData();
     } catch (error) {
       console.error('Error adding banner:', error);
       toast({
         variant: "destructive",
         title: "Erro",
-        description: "Erro ao adicionar banner."
+        description: `Erro ao adicionar banner: ${error instanceof Error ? error.message : 'Erro desconhecido'}`
       });
     } finally {
       setLoading(false);
@@ -337,11 +365,15 @@ export const AdminPanel: React.FC = () => {
   const handleSendNotification = async (data: any) => {
     try {
       setLoading(true);
+      console.log('Sending notification with data:', data);
       
-      await notificationService.addNotification({
+      const notificationData = {
         ...data,
         createdAt: new Date()
-      });
+      };
+      
+      console.log('Saving notification to Firebase:', notificationData);
+      await notificationService.addNotification(notificationData);
       
       toast({
         title: "Sucesso",
@@ -355,7 +387,7 @@ export const AdminPanel: React.FC = () => {
       toast({
         variant: "destructive",
         title: "Erro",
-        description: "Erro ao enviar notificação."
+        description: `Erro ao enviar notificação: ${error instanceof Error ? error.message : 'Erro desconhecido'}`
       });
     } finally {
       setLoading(false);
@@ -553,11 +585,10 @@ export const AdminPanel: React.FC = () => {
                         </DialogHeader>
                         <Form {...productForm}>
                           <form onSubmit={productForm.handleSubmit((data) => {
-                            const imageFile = (document.getElementById('product-image') as HTMLInputElement)?.files?.[0];
                             if (editingProduct) {
-                              handleEditProduct(data, imageFile);
+                              handleEditProduct(data);
                             } else {
-                              handleAddProduct(data, imageFile);
+                              handleAddProduct(data);
                             }
                           })} className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
@@ -848,22 +879,195 @@ export const AdminPanel: React.FC = () => {
               <Card className="grok-card">
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
-                    Banners do Carousel
-                    <Button className="grok-button-primary">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Novo Banner
-                    </Button>
+                    Banners do Carousel ({banners.length})
+                    <Dialog open={isBannerDialogOpen} onOpenChange={setIsBannerDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button className="grok-button-primary" onClick={() => {
+                          setEditingBanner(null);
+                          bannerForm.reset();
+                        }}>
+                          <Plus className="h-4 w-4 mr-2" />
+                          Novo Banner
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-2xl">
+                        <DialogHeader>
+                          <DialogTitle>
+                            {editingBanner ? 'Editar Banner' : 'Adicionar Novo Banner'}
+                          </DialogTitle>
+                          <DialogDescription>
+                            Configure um banner promocional para o carousel
+                          </DialogDescription>
+                        </DialogHeader>
+                        <Form {...bannerForm}>
+                          <form onSubmit={bannerForm.handleSubmit(handleAddBanner)} className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                              <FormField
+                                control={bannerForm.control}
+                                name="title"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Título</FormLabel>
+                                    <FormControl>
+                                      <Input className="selectable" placeholder="Título do banner" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={bannerForm.control}
+                                name="subtitle"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Subtítulo</FormLabel>
+                                    <FormControl>
+                                      <Input className="selectable" placeholder="Subtítulo do banner" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-4">
+                              <FormField
+                                control={bannerForm.control}
+                                name="color"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Cor do Fundo</FormLabel>
+                                    <FormControl>
+                                      <Input type="color" className="selectable" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={bannerForm.control}
+                                name="order"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Ordem de Exibição</FormLabel>
+                                    <FormControl>
+                                      <Input 
+                                        type="number" 
+                                        className="selectable" 
+                                        {...field} 
+                                        onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                            
+                            <div>
+                              <Label htmlFor="banner-image">Imagem do Banner</Label>
+                              <Input
+                                id="banner-image"
+                                type="file"
+                                accept="image/*"
+                                className="selectable"
+                              />
+                            </div>
+                            
+                            <FormField
+                              control={bannerForm.control}
+                              name="isActive"
+                              render={({ field }) => (
+                                <FormItem className="flex items-center space-x-2">
+                                  <FormControl>
+                                    <input
+                                      type="checkbox"
+                                      checked={field.value}
+                                      onChange={field.onChange}
+                                    />
+                                  </FormControl>
+                                  <FormLabel>Banner Ativo</FormLabel>
+                                </FormItem>
+                              )}
+                            />
+                            
+                            <div className="flex justify-end gap-2">
+                              <Button 
+                                type="button" 
+                                variant="outline" 
+                                onClick={() => setIsBannerDialogOpen(false)}
+                              >
+                                Cancelar
+                              </Button>
+                              <Button type="submit" disabled={loading} className="grok-button-primary">
+                                {loading ? 'Salvando...' : (editingBanner ? 'Atualizar' : 'Adicionar')}
+                              </Button>
+                            </div>
+                          </form>
+                        </Form>
+                      </DialogContent>
+                    </Dialog>
                   </CardTitle>
                   <CardDescription>
                     Gerencie os banners promocionais da página inicial
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-center py-8 text-muted-foreground">
-                    <ImageIcon className="h-16 w-16 mx-auto mb-4 opacity-50" />
-                    <h3 className="text-lg font-semibold mb-2">Sistema de Banners</h3>
-                    <p>Interface para upload e gerenciamento de banners promocionais</p>
-                  </div>
+                  {banners.length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <ImageIcon className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                      <h3 className="text-lg font-semibold mb-2">Nenhum banner cadastrado</h3>
+                      <p>Clique em "Novo Banner" para adicionar seu primeiro banner</p>
+                    </div>
+                  ) : (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Banner</TableHead>
+                          <TableHead>Ordem</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Ações</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {banners.map((banner) => (
+                          <TableRow key={banner.id}>
+                            <TableCell>
+                              <div className="flex items-center gap-3">
+                                {banner.image && (
+                                  <img 
+                                    src={banner.image} 
+                                    alt={banner.title}
+                                    className="w-16 h-10 rounded object-cover"
+                                  />
+                                )}
+                                <div>
+                                  <div className="font-medium">{banner.title}</div>
+                                  <div className="text-sm text-muted-foreground">{banner.subtitle}</div>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>{banner.order}</TableCell>
+                            <TableCell>
+                              <Badge variant={banner.isActive ? "default" : "secondary"}>
+                                {banner.isActive ? "Ativo" : "Inativo"}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex gap-2">
+                                <Button size="sm" variant="outline">
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button size="sm" variant="destructive">
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
@@ -873,21 +1077,112 @@ export const AdminPanel: React.FC = () => {
               <Card className="grok-card">
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
-                    Promoções e Novidades
-                    <Button className="grok-button-primary">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Nova Promoção
-                    </Button>
+                    Notificações e Promoções
+                    <Dialog open={isNotificationDialogOpen} onOpenChange={setIsNotificationDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button className="grok-button-primary" onClick={() => {
+                          notificationForm.reset();
+                        }}>
+                          <Send className="h-4 w-4 mr-2" />
+                          Enviar Notificação
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Enviar Notificação</DialogTitle>
+                          <DialogDescription>
+                            Envie uma notificação para todos os usuários
+                          </DialogDescription>
+                        </DialogHeader>
+                        <Form {...notificationForm}>
+                          <form onSubmit={notificationForm.handleSubmit(handleSendNotification)} className="space-y-4">
+                            <FormField
+                              control={notificationForm.control}
+                              name="title"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Título</FormLabel>
+                                  <FormControl>
+                                    <Input className="selectable" placeholder="Título da notificação" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            
+                            <FormField
+                              control={notificationForm.control}
+                              name="message"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Mensagem</FormLabel>
+                                  <FormControl>
+                                    <Textarea className="selectable" placeholder="Conteúdo da notificação" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            
+                            <FormField
+                              control={notificationForm.control}
+                              name="type"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Tipo</FormLabel>
+                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Selecione o tipo" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      <SelectItem value="info">Informação</SelectItem>
+                                      <SelectItem value="success">Sucesso</SelectItem>
+                                      <SelectItem value="warning">Aviso</SelectItem>
+                                      <SelectItem value="error">Erro</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            
+                            <div className="flex justify-end gap-2">
+                              <Button 
+                                type="button" 
+                                variant="outline" 
+                                onClick={() => setIsNotificationDialogOpen(false)}
+                              >
+                                Cancelar
+                              </Button>
+                              <Button type="submit" disabled={loading} className="grok-button-primary">
+                                {loading ? 'Enviando...' : 'Enviar Notificação'}
+                              </Button>
+                            </div>
+                          </form>
+                        </Form>
+                      </DialogContent>
+                    </Dialog>
                   </CardTitle>
                   <CardDescription>
-                    Crie promoções especiais e marque produtos como novidades
+                    Envie notificações e gerencie promoções especiais
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-center py-8 text-muted-foreground">
-                    <TrendingUp className="h-16 w-16 mx-auto mb-4 opacity-50" />
-                    <h3 className="text-lg font-semibold mb-2">Sistema de Promoções</h3>
-                    <p>Gerencie descontos, ofertas especiais e produtos em destaque</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold">Produtos Promocionais</h3>
+                      <p className="text-muted-foreground">
+                        Configure produtos como promocionais diretamente no gerenciamento de produtos
+                      </p>
+                    </div>
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold">Produtos Novos</h3>
+                      <p className="text-muted-foreground">
+                        Marque produtos como "novos" para destacá-los na seção de novidades
+                      </p>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -897,17 +1192,69 @@ export const AdminPanel: React.FC = () => {
             <TabsContent value="mensagens" className="space-y-6">
               <Card className="grok-card">
                 <CardHeader>
-                  <CardTitle>Mensagens de Suporte</CardTitle>
+                  <CardTitle>Mensagens de Suporte ({supportMessages.length})</CardTitle>
                   <CardDescription>
                     Visualize e responda às mensagens dos clientes
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-center py-8 text-muted-foreground">
-                    <MessageSquare className="h-16 w-16 mx-auto mb-4 opacity-50" />
-                    <h3 className="text-lg font-semibold mb-2">Sistema de Suporte</h3>
-                    <p>Chat em tempo real e sistema de mensagens com clientes</p>
-                  </div>
+                  {supportMessages.length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <MessageSquare className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                      <h3 className="text-lg font-semibold mb-2">Nenhuma mensagem</h3>
+                      <p>Mensagens de suporte dos clientes aparecerão aqui</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {supportMessages.map((message) => (
+                        <Card key={message.id} className={`${!message.isRead ? 'border-primary' : ''}`}>
+                          <CardHeader className="pb-3">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <CardTitle className="text-lg">{message.name}</CardTitle>
+                                <CardDescription>{message.email}</CardDescription>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {!message.isRead && <Badge variant="destructive">Novo</Badge>}
+                                <span className="text-sm text-muted-foreground">
+                                  {message.createdAt.toLocaleDateString()}
+                                </span>
+                              </div>
+                            </div>
+                          </CardHeader>
+                          <CardContent>
+                            <p className="mb-4">{message.message}</p>
+                            {message.adminResponse ? (
+                              <div className="bg-muted p-3 rounded">
+                                <p className="text-sm"><strong>Sua resposta:</strong></p>
+                                <p className="text-sm">{message.adminResponse}</p>
+                              </div>
+                            ) : (
+                              <div className="flex gap-2">
+                                <Input
+                                  placeholder="Digite sua resposta..."
+                                  className="flex-1"
+                                  id={`response-${message.id}`}
+                                />
+                                <Button
+                                  onClick={() => {
+                                    const input = document.getElementById(`response-${message.id}`) as HTMLInputElement;
+                                    if (input.value.trim()) {
+                                      handleRespondSupport(message.id, input.value.trim());
+                                      input.value = '';
+                                    }
+                                  }}
+                                  disabled={loading}
+                                >
+                                  <Send className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            )}
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
