@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { supportService } from '@/lib/support';
 
 export const Support: React.FC = () => {
   const navigate = useNavigate();
@@ -42,9 +43,12 @@ export const Support: React.FC = () => {
     setLoading(true);
 
     try {
-      // Here would be the Firebase integration to save support messages
-      // For now, simulate sending
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Save support message to Firebase
+      await supportService.addSupportMessage({
+        name: form.name,
+        email: form.email,
+        message: form.message
+      });
 
       toast({
         title: "Mensagem enviada!",
@@ -59,6 +63,7 @@ export const Support: React.FC = () => {
       });
 
     } catch (error) {
+      console.error('Error sending support message:', error);
       toast({
         variant: "destructive",
         title: "Erro ao enviar",

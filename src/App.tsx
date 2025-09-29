@@ -23,6 +23,8 @@ import { AdminPanel } from "@/pages/AdminPanel";
 import { Promotions } from "@/pages/Promotions";
 import { NewProducts } from "@/pages/NewProducts";
 import { ProductDetail } from '@/pages/ProductDetail';
+import { Notifications } from '@/pages/Notifications';
+import { MySupportMessages } from '@/pages/MySupportMessages';
 import NotFound from '@/pages/NotFound';
 
 const queryClient = new QueryClient();
@@ -49,8 +51,10 @@ const App = () => (
             <Route path="/pagamento-sucesso" element={<PaymentSuccess />} />
             <Route path="/meus-produtos" element={<MyProducts />} />
             <Route path="/suporte" element={<Support />} />
+            <Route path="/minhas-mensagens" element={<MySupportMessages />} />
             <Route path="/promocoes" element={<Promotions />} />
             <Route path="/novidades" element={<NewProducts />} />
+            <Route path="/notificacoes" element={<Notifications />} />
             <Route path="/termos" element={<Terms />} />
             <Route path="/privacidade" element={<Privacy />} />
             <Route path="/painel" element={<AdminPanel />} />

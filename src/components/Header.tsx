@@ -16,7 +16,8 @@ import {
   Sparkles,
   MessageCircle,
   Store,
-  Home
+  Home,
+  Package
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -149,6 +150,30 @@ export const Header: React.FC = () => {
                           {item.title}
                         </Button>
                       ))}
+                      
+                      <Button
+                        variant="ghost"
+                        className="justify-start"
+                        onClick={() => {
+                          navigate('/minhas-mensagens');
+                          setIsDrawerOpen(false);
+                        }}
+                      >
+                        <MessageCircle className="h-4 w-4 mr-2" />
+                        Minhas Mensagens
+                      </Button>
+                      
+                      <Button
+                        variant="ghost"
+                        className="justify-start"
+                        onClick={() => {
+                          navigate('/meus-produtos');
+                          setIsDrawerOpen(false);
+                        }}
+                      >
+                        <Package className="h-4 w-4 mr-2" />
+                        Meus Produtos
+                      </Button>
                       
                       <Button
                         variant="ghost"

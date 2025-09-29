@@ -38,6 +38,7 @@ import { notificationService } from '@/lib/notifications';
 import { supportService, SupportMessage } from '@/lib/support';
 import { settingsService, StoreSettings } from '@/lib/settings';
 import { storageService } from '@/lib/storage';
+import { userSupportService } from '@/lib/userSupport';
 import { Product, Banner } from '@/types/product';
 
 // Admin credentials (In production, this should be in a secure backend)
@@ -151,6 +152,9 @@ export const AdminPanel: React.FC = () => {
   useEffect(() => {
     if (isAuthenticated) {
       loadData();
+      // Auto-refresh support messages every 30 seconds
+      const interval = setInterval(loadData, 30000);
+      return () => clearInterval(interval);
     }
   }, [isAuthenticated]);
   
@@ -395,12 +399,22 @@ export const AdminPanel: React.FC = () => {
   };
   
   // Support handlers
-  const handleRespondSupport = async (id: string, response: string) => {
+  const handleRespondSupport = async (id: string, response: string, userEmail: string) => {
     try {
+      // Update support message in Firebase
       await supportService.respondToSupport(id, response);
+      
+      // Add response to user's support responses collection
+      await userSupportService.addUserSupportResponse(userEmail, {
+        messageId: id,
+        response,
+        respondedAt: new Date(),
+        isRead: false
+      });
+      
       toast({
         title: "Sucesso",
-        description: "Resposta enviada com sucesso!"
+        description: "Resposta enviada e o usuário será notificado!"
       });
       loadData();
     } catch (error) {
@@ -696,9 +710,12 @@ export const AdminPanel: React.FC = () => {
                                 <Input
                                   id="product-image"
                                   type="file"
-                                  accept="image/*"
+                                  accept="image/*,.pdf,.doc,.docx"
                                   className="selectable"
                                 />
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  Aceita imagens (JPG, PNG, etc.) e documentos (PDF, DOC)
+                                </p>
                               </div>
                               
                               <FormField
@@ -964,15 +981,18 @@ export const AdminPanel: React.FC = () => {
                               />
                             </div>
                             
-                            <div>
-                              <Label htmlFor="banner-image">Imagem do Banner</Label>
-                              <Input
-                                id="banner-image"
-                                type="file"
-                                accept="image/*"
-                                className="selectable"
-                              />
-                            </div>
+                              <div>
+                                <Label htmlFor="banner-image">Imagem do Banner</Label>
+                                <Input
+                                  id="banner-image"
+                                  type="file"
+                                  accept="image/*,.pdf,.doc,.docx"
+                                  className="selectable"
+                                />
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  Aceita imagens (JPG, PNG, etc.) e documentos (PDF, DOC)
+                                </p>
+                              </div>
                             
                             <FormField
                               control={bannerForm.control}
@@ -1240,7 +1260,7 @@ export const AdminPanel: React.FC = () => {
                                   onClick={() => {
                                     const input = document.getElementById(`response-${message.id}`) as HTMLInputElement;
                                     if (input.value.trim()) {
-                                      handleRespondSupport(message.id, input.value.trim());
+                                      handleRespondSupport(message.id, input.value.trim(), message.email);
                                       input.value = '';
                                     }
                                   }}
@@ -1273,11 +1293,11 @@ export const AdminPanel: React.FC = () => {
                     <div>
                       <Label className="text-base font-semibold">Informações da Loja</Label>
                       <div className="grid gap-4 mt-2">
-                        <div>
+                         <div>
                           <Label htmlFor="storeName">Nome da Loja</Label>
                           <Input
                             id="storeName"
-                            defaultValue="Moz Store Digital"
+                            defaultValue={storeSettings?.storeName || "Moz Store Digital"}
                             className="grok-input selectable"
                           />
                         </div>
@@ -1285,7 +1305,7 @@ export const AdminPanel: React.FC = () => {
                           <Label htmlFor="storeEmail">E-mail de Contato</Label>
                           <Input
                             id="storeEmail"
-                            defaultValue="mozstoredigitalp2@gmail.com"
+                            defaultValue={storeSettings?.storeEmail || "mozstoredigitalp2@gmail.com"}
                             className="grok-input selectable"
                           />
                         </div>
@@ -1293,7 +1313,7 @@ export const AdminPanel: React.FC = () => {
                           <Label htmlFor="storePhone">Telefone de Contato</Label>
                           <Input
                             id="storePhone"
-                            defaultValue="+258 87 650 0685"
+                            defaultValue={storeSettings?.storePhone || "+258 87 650 0685"}
                             className="grok-input selectable"
                           />
                         </div>
@@ -1301,7 +1321,23 @@ export const AdminPanel: React.FC = () => {
                     </div>
                     
                     <div className="pt-4 border-t">
-                      <Button className="grok-button-primary">
+                      <Button 
+                        className="grok-button-primary"
+                        onClick={async () => {
+                          const storeName = (document.getElementById('storeName') as HTMLInputElement)?.value;
+                          const storeEmail = (document.getElementById('storeEmail') as HTMLInputElement)?.value;
+                          const storePhone = (document.getElementById('storePhone') as HTMLInputElement)?.value;
+                          
+                          if (storeName && storeEmail && storePhone) {
+                            await handleUpdateSettings({
+                              storeName,
+                              storeEmail,
+                              storePhone,
+                              storeDescription: storeSettings?.storeDescription || 'Sua loja digital de confiança'
+                            });
+                          }
+                        }}
+                      >
                         Salvar Configurações
                       </Button>
                     </div>

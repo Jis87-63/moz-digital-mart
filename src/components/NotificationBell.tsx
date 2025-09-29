@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Bell, X, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -9,6 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const NotificationBell: React.FC = () => {
+  const navigate = useNavigate();
   const { currentUser } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -114,16 +116,29 @@ export const NotificationBell: React.FC = () => {
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base">Notificações</CardTitle>
-              {unreadCount > 0 && (
+              <div className="flex gap-2">
+                {unreadCount > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={markAllAsRead}
+                    className="text-xs h-7 px-2"
+                  >
+                    Marcar como lidas
+                  </Button>
+                )}
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={markAllAsRead}
+                  onClick={() => {
+                    navigate('/notifications');
+                    setIsOpen(false);
+                  }}
                   className="text-xs h-7 px-2"
                 >
-                  Marcar todas como lidas
+                  Ver todas <ExternalLink className="h-3 w-3 ml-1" />
                 </Button>
-              )}
+              </div>
             </div>
           </CardHeader>
           <CardContent className="p-0 max-h-96 overflow-y-auto">
@@ -145,7 +160,11 @@ export const NotificationBell: React.FC = () => {
                       className={`p-3 border-l-4 cursor-pointer transition-colors hover:bg-secondary/50 ${
                         getNotificationColor(notification.type)
                       } ${isRead ? 'opacity-60' : ''}`}
-                      onClick={() => markAsRead(notification.id)}
+                      onClick={() => {
+                        markAsRead(notification.id);
+                        navigate('/notifications', { state: { notification } });
+                        setIsOpen(false);
+                      }}
                     >
                       <div className="flex items-start gap-3">
                         <span className="text-lg" role="img" aria-label={notification.type}>
